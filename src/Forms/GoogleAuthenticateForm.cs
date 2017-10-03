@@ -58,31 +58,21 @@ namespace GoogleSyncPlugin
 
 		private void GoogleAuthenticateForm_Load(object sender, EventArgs e)
 		{
-			webBrowser1.Navigate(m_uri);
+			System.Diagnostics.Process.Start(m_uri.ToString());
 		}
 
-		private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+		private void OnCodeEntered(object sender, object eventArgs)
 		{
-			string title = webBrowser1.DocumentTitle;
+			m_success = true;
+			m_code = codeInput.Text;
+			this.Close();
+		}
 
-			if (e.Url.AbsolutePath.Equals("/ServiceLogin"))
-			{
-				HtmlElement elEmail = webBrowser1.Document.GetElementById("Email");
-				if (elEmail != null && String.IsNullOrEmpty(elEmail.GetAttribute("value")) && m_email != null && !String.IsNullOrEmpty(m_email))
-					elEmail.SetAttribute("value", m_email);
-
-				HtmlElement elPasswd = webBrowser1.Document.GetElementById("Passwd");
-				if (elPasswd != null && String.IsNullOrEmpty(elPasswd.GetAttribute("value")) && m_passwd != null && !m_passwd.IsEmpty)
-					elPasswd.SetAttribute("value", m_passwd.ReadString());
-			}
-			else if (title.Contains("code=") || title.Contains("error="))
-			{
-				int indexStart = title.IndexOf("=") + 1;
-				m_code = title.Substring(indexStart);
-				if (title.Contains("code="))
-					m_success = true;
-				this.Close();
-			}
+		private void OnCancelled(object sender, object eventArgs)
+		{
+			m_success = false;
+			m_code = codeInput.Text;
+			this.Close();
 		}
 	}
 }
